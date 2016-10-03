@@ -1,6 +1,8 @@
 package tien.edu.hutech.restaurant;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
@@ -8,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,7 @@ public class DetailsActivity extends BaseActivity {
 
     private static final String TAG = "DetailsActivity";
     public static final String EXTRA_STORE_KEY = "store_key";
+    public static final int MY_PERMISSION_REQUEST_CALL_PHONE = 101;
 
     //Defind toolbar;
     private Toolbar toolbar;
@@ -37,11 +39,14 @@ public class DetailsActivity extends BaseActivity {
     ValueEventListener mStoreListener;
     private String mstoreKey;
 
+    Store store = new Store();
+
     //Define views
+    private View layoutCall;
     private ImageView imgDetailImage;
     private ImageView imgDetailFavorite;
-    private ImageButton btnDetailDirection;
-    private ImageButton btnDetailCall;
+    private View layoutIconDirections;
+    private View layoutIconCall;
     private TextView txtDetailStore;
     private TextView txtDetailAddress;
     private TextView txtDetailOpen;
@@ -65,10 +70,11 @@ public class DetailsActivity extends BaseActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         //Initialize views
+        layoutCall = findViewById(R.id.layoutCall);
         imgDetailImage = (ImageView) findViewById(R.id.imgDetailImage);
         imgDetailFavorite = (ImageView) findViewById(R.id.imgDetailFavorite);
-        btnDetailDirection = (ImageButton) findViewById(R.id.btnDetailDirection);
-        btnDetailCall = (ImageButton) findViewById(R.id.btnDetailCall);
+        layoutIconDirections = (View) findViewById(R.id.layoutIconDirections);
+        layoutIconCall = (View) findViewById(R.id.layoutIconCall);
         txtDetailStore = (TextView) findViewById(R.id.txtDetailStore);
         txtDetailAddress = (TextView) findViewById(R.id.txtDetailAddress);
         txtDetailOpen = (TextView) findViewById(R.id.txtDetailOpen);
@@ -81,17 +87,25 @@ public class DetailsActivity extends BaseActivity {
         mStoreReference = FirebaseDatabase.getInstance().getReference()
                 .child("stores").child(mstoreKey);
 
+        //Initialize event on click Favorite button
         imgDetailFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onFavoriteClicked(mStoreReference);
             }
         });
+
+        //Initialize event on click Call
+        layoutIconCall.setOnClickListener(onCallClicked);
+
+        //Initialize event on click Call
+        layoutCall.setOnClickListener(onCallClicked);
     }
 
+    //Event click back button
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
+        if (item.getItemId() == android.R.id.home) {
             onBackPressed();
             return true;
         }
@@ -102,10 +116,11 @@ public class DetailsActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
 
+        //Initialize event get data from Firebase
         ValueEventListener storeListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Store store = dataSnapshot.getValue(Store.class);
+                store = dataSnapshot.getValue(Store.class);
 
                 Picasso.with(DetailsActivity.this).load(store.getImage()).into(imgDetailImage);
                 mCollapsingToolbarLayout.setTitle(store.getName());
@@ -114,7 +129,7 @@ public class DetailsActivity extends BaseActivity {
                 txtDetailOpen.setText(" " + store.getOpen() + " - " + store.getClose());
                 txtDetailPhone.setText(store.getPhone());
 
-                if(store.favorite.containsKey(getUid())){
+                if (store.favorite.containsKey(getUid())) {
                     imgDetailFavorite.setImageResource(R.drawable.ic_toggle_star_24);
                 } else {
                     imgDetailFavorite.setImageResource(R.drawable.ic_toggle_star_outline_24);
@@ -124,7 +139,7 @@ public class DetailsActivity extends BaseActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w(TAG, "loadStore:onCancelled", databaseError.toException());
-                Toast.makeText(DetailsActivity.this, "Failed to load post.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(DetailsActivity.this, "Failed to load post.", Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -137,22 +152,23 @@ public class DetailsActivity extends BaseActivity {
     protected void onStop() {
         super.onStop();
 
-        if(mStoreListener != null){
+        if (mStoreListener != null) {
             mStoreReference.removeEventListener(mStoreListener);
         }
     }
 
+    //Event click Favorite
     private void onFavoriteClicked(DatabaseReference storeRef) {
         storeRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
                 Store s = mutableData.getValue(Store.class);
 
-                if(s == null) {
+                if (s == null) {
                     return Transaction.success(mutableData);
                 }
 
-                if(s.favorite.containsKey(getUid())) {
+                if (s.favorite.containsKey(getUid())) {
                     s.favorite.remove(getUid());
                 } else {
                     s.favorite.put(getUid(), true);
@@ -168,5 +184,15 @@ public class DetailsActivity extends BaseActivity {
             }
         });
     }
+
+    //Event click button Call
+    View.OnClickListener onCallClicked = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Uri uri = Uri.parse("tel:" + store.getPhone());
+            Intent intent = new Intent(Intent.ACTION_DIAL).setData(uri);
+            startActivity(intent);
+        }
+    };
 
 }
