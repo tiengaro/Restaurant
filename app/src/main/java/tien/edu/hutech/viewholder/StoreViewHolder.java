@@ -19,6 +19,7 @@ public class StoreViewHolder extends RecyclerView.ViewHolder{
     public TextView txtStoreName;
     public TextView txtStoreOpen;
 
+
     public StoreViewHolder(View itemView) {
         super(itemView);
 

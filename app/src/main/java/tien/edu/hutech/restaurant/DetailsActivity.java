@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -14,16 +16,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import tien.edu.hutech.models.Menu;
 import tien.edu.hutech.models.Store;
+import tien.edu.hutech.viewholder.MenuViewHolder;
 
 public class DetailsActivity extends BaseActivity {
 
@@ -35,7 +41,9 @@ public class DetailsActivity extends BaseActivity {
     private Toolbar toolbar;
     private CollapsingToolbarLayout mCollapsingToolbarLayout;
 
+    //Define Firebase
     private DatabaseReference mStoreReference;
+    private DatabaseReference mMenuReference;
     ValueEventListener mStoreListener;
     private String mstoreKey;
 
@@ -51,6 +59,11 @@ public class DetailsActivity extends BaseActivity {
     private TextView txtDetailAddress;
     private TextView txtDetailOpen;
     private TextView txtDetailPhone;
+
+    //Define recyclerview and adapter
+    private FirebaseRecyclerAdapter<Menu, MenuViewHolder> mAdapter;
+    private RecyclerView rcvMenu;
+    private GridLayoutManager mManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +96,37 @@ public class DetailsActivity extends BaseActivity {
         //Get store key from intent
         mstoreKey = getIntent().getStringExtra(EXTRA_STORE_KEY);
 
-        //Initialize Database
+        //Initialize Database for a store
         mStoreReference = FirebaseDatabase.getInstance().getReference()
                 .child("stores").child(mstoreKey);
+
+        mMenuReference = FirebaseDatabase.getInstance().getReference()
+                .child("menu");
+        mManager = new GridLayoutManager(DetailsActivity.this, 2);
+
+        final Query mMenuQuery = mMenuReference.child(mstoreKey).limitToFirst(10);
+
+        //Initialize recyclerview
+        rcvMenu = (RecyclerView) findViewById(R.id.rcvMenu);
+        rcvMenu.setHasFixedSize(true);
+        rcvMenu.setLayoutManager(mManager);
+
+        mAdapter = new FirebaseRecyclerAdapter<Menu, MenuViewHolder>(
+                Menu.class,
+                R.layout.itemmenu,
+                MenuViewHolder.class,
+                mMenuQuery)
+        {
+            @Override
+            protected void populateViewHolder(MenuViewHolder viewHolder, Menu model, int position) {
+                Picasso.with(DetailsActivity.this).load(model.getImage()).into(viewHolder.imgFood);
+                viewHolder.bindToMenu(model);
+            }
+        };
+
+        rcvMenu.setAdapter(mAdapter);
+
+
 
         //Initialize event on click Favorite button
         imgDetailFavorite.setOnClickListener(new View.OnClickListener() {

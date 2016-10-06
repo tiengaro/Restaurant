@@ -9,6 +9,9 @@ public class Menu {
     private int price;
     private String image;
 
+    public Menu() {
+    }
+
     public Menu(String name, int price, String image) {
         this.name = name;
         this.price = price;
