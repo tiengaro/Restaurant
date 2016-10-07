@@ -8,14 +8,17 @@ public class Menu {
     private String name;
     private int price;
     private String image;
+    private String storeKey;
 
     public Menu() {
     }
 
-    public Menu(String name, int price, String image) {
+    public Menu(String name, int price, String image, String keyStore) {
+
         this.name = name;
         this.price = price;
         this.image = image;
+        this.storeKey = keyStore;
     }
 
     public String getName() {
@@ -41,5 +44,13 @@ public class Menu {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getStoreKey() {
+        return storeKey;
+    }
+
+    public void setStoreKey(String storeKey) {
+        this.storeKey = storeKey;
     }
 }

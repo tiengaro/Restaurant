@@ -16,6 +16,7 @@ public class Store {
     private String close;
     private String phone;
     public Map<String, Boolean> favorite = new HashMap<>();
+    public Map<String, Boolean> menu = new HashMap<>();
 
     public Store() {
     }
