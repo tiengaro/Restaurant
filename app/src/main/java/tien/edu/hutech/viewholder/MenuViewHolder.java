@@ -1,9 +1,12 @@
 package tien.edu.hutech.viewholder;
 
+import android.icu.text.NumberFormat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.Locale;
 
 import tien.edu.hutech.models.Menu;
 import tien.edu.hutech.restaurant.R;
@@ -30,6 +33,10 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
 
     public void bindToMenu (Menu menu){
         txtFoodName.setText(menu.getName());
-        txtFoodPrice.setText(String.valueOf(menu.getPrice()));
+        String price = "";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            price = NumberFormat.getNumberInstance(Locale.US).format(menu.getPrice());
+        }
+        txtFoodPrice.setText(price);
     }
 }
