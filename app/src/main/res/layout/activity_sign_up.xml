@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_sign_up"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="tien.edu.hutech.Auth.SignUpActivity">
+
+</RelativeLayout>-->
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="tien.edu.hutech.restaurant.tien.edu.hutech.Auth.SignInActivity">
+    tools:context="tien.edu.hutech.Auth.SignUpActivity">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorPrimaryDark"
         android:gravity="center"
         android:orientation="vertical"
         android:padding="@dimen/activity_horizontal_margin">
@@ -30,11 +42,12 @@
                 android:id="@+id/txt_Email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:hint="@string/hint_email"
+                android:hint="@string/email"
                 android:inputType="textEmailAddress"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:maxLines="1"
+                android:singleLine="true"
+                android:textColor="@android:color/white" />
+
         </android.support.design.widget.TextInputLayout>
 
         <android.support.design.widget.TextInputLayout
@@ -43,25 +56,29 @@
 
             <EditText
                 android:id="@+id/txt_Password"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:focusableInTouchMode="true"
                 android:hint="@string/hint_password"
+                android:imeActionId="@+id/login"
+                android:imeOptions="actionUnspecified"
                 android:inputType="textPassword"
-                android:textColor="@android:color/white"
-                android:textColorHint="@android:color/white" />
+                android:maxLines="1"
+                android:singleLine="true"
+                android:textColor="@android:color/white" />
+
         </android.support.design.widget.TextInputLayout>
 
-        <!-- Login Button -->
-
         <Button
-            android:id="@+id/btn_SignIn"
-            android:layout_width="fill_parent"
+            android:id="@+id/btn_SignUp"
+            style="?android:textAppearanceSmall"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dip"
+            android:layout_marginTop="16dp"
             android:background="@color/colorAccent"
-            android:text="@string/btn_login"
-            android:textColor="@android:color/black" />
+            android:text="@string/action_sign_in_short"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btn_Reset_Password"
@@ -76,12 +93,12 @@
         <!-- Link to Login Screen -->
 
         <Button
-            android:id="@+id/btn_SignUp"
+            android:id="@+id/btn_SignIn"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dip"
             android:background="@null"
-            android:text="@string/btn_link_to_register"
+            android:text="@string/btn_link_to_login"
             android:textAllCaps="false"
             android:textColor="@color/white"
             android:textSize="15dp" />

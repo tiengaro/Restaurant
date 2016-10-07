@@ -1,4 +1,4 @@
-package tien.edu.hutech.restaurant;
+package tien.edu.hutech.Auth;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,6 +20,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import tien.edu.hutech.models.User;
+import tien.edu.hutech.restaurant.BaseActivity;
+import tien.edu.hutech.restaurant.MainActivity;
+import tien.edu.hutech.restaurant.R;
 
 public class SignInActivity extends BaseActivity implements View.OnClickListener {
 
@@ -27,28 +31,30 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
 
-    private EditText mEmailField;
-    private EditText mPasswordField;
-    private Button mSignInButton;
-    private Button mSignUpButton;
+    private EditText txt_Email, txt_Password;
+    private ProgressBar progressBar;
+    private Button btn_SignUp, btn_SignIn, btn_Reset_Password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
+        mDatabase   = FirebaseDatabase.getInstance().getReference();
+        mAuth       = FirebaseAuth.getInstance();
 
         // Views
-        mEmailField = (EditText) findViewById(R.id.field_email);
-        mPasswordField = (EditText) findViewById(R.id.field_password);
-        mSignInButton = (Button) findViewById(R.id.button_sign_in);
-        mSignUpButton = (Button) findViewById(R.id.button_sign_up);
+        txt_Email           = (EditText) findViewById(R.id.txt_Email);
+        txt_Password        = (EditText) findViewById(R.id.txt_Password);
+        progressBar         = (ProgressBar) findViewById(R.id.progressBar);
+        btn_SignUp          = (Button) findViewById(R.id.btn_SignUp);
+        btn_SignIn          = (Button) findViewById(R.id.btn_SignIn);
+        btn_Reset_Password  = (Button) findViewById(R.id.btn_Reset_Password);
 
         // Click listeners
-        mSignInButton.setOnClickListener(this);
-        mSignUpButton.setOnClickListener(this);
+        btn_SignIn.setOnClickListener(this);
+        btn_SignUp.setOnClickListener(this);
+        btn_Reset_Password.setOnClickListener(this);
     }
 
     @Override
@@ -67,16 +73,16 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
             return;
         }
 
-        showProgressDialog();
-        String email = mEmailField.getText().toString();
-        String password = mPasswordField.getText().toString();
+        progressBar.setVisibility(View.VISIBLE);
+        String email = txt_Email.getText().toString();
+        String password = txt_Password.getText().toString();
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         Log.d(TAG, "signIn:onComplete:" + task.isSuccessful());
-                        hideProgressDialog();
+                        progressBar.setVisibility(View.GONE);
 
                         if (task.isSuccessful()) {
                             onAuthSuccess(task.getResult().getUser());
@@ -88,32 +94,6 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
                 });
     }
 
-    private void signUp() {
-        Log.d(TAG, "signUp");
-        if (!validateForm()) {
-            return;
-        }
-
-        showProgressDialog();
-        String email = mEmailField.getText().toString();
-        String password = mPasswordField.getText().toString();
-
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUser:onComplete:" + task.isSuccessful());
-                        hideProgressDialog();
-
-                        if (task.isSuccessful()) {
-                            onAuthSuccess(task.getResult().getUser());
-                        } else {
-                            Toast.makeText(SignInActivity.this, "Sign Up Failed",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
 
     private void onAuthSuccess(FirebaseUser user) {
         String username = usernameFromEmail(user.getEmail());
@@ -136,18 +116,18 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
     private boolean validateForm() {
         boolean result = true;
-        if (TextUtils.isEmpty(mEmailField.getText().toString())) {
-            mEmailField.setError("Required");
+        if (TextUtils.isEmpty(txt_Email.getText().toString())) {
+            txt_Email.setError("Required");
             result = false;
         } else {
-            mEmailField.setError(null);
+            txt_Email.setError(null);
         }
 
-        if (TextUtils.isEmpty(mPasswordField.getText().toString())) {
-            mPasswordField.setError("Required");
+        if (TextUtils.isEmpty(txt_Password.getText().toString())) {
+            txt_Password.setError("Required");
             result = false;
         } else {
-            mPasswordField.setError(null);
+            txt_Password.setError(null);
         }
 
         return result;
@@ -163,12 +143,18 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onClick(View v) {
-        int i = v.getId();
-        if (i == R.id.button_sign_in) {
-            signIn();
-        } else if (i == R.id.button_sign_up) {
-            signUp();
+        switch (v.getId()){
+            case R.id.btn_SignIn:
+                signIn();
+                break;
+            case R.id.btn_SignUp:
+                startActivity(new Intent(SignInActivity.this, SignUpActivity.class));
+                break;
+            case R.id.btn_Reset_Password:
+                startActivity(new Intent(SignInActivity.this, ResetPasswordActivity.class));
+                break;
         }
+
     }
 }
 
