@@ -1,10 +1,18 @@
 package tien.edu.hutech.restaurant;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +25,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,15 +41,20 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
+import java.util.List;
+
 import tien.edu.hutech.models.Menu;
 import tien.edu.hutech.models.Store;
 import tien.edu.hutech.viewholder.MenuViewHolder;
 
-public class DetailsActivity extends BaseActivity {
+public class DetailsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private static final String TAG = "DetailsActivity";
     public static final String EXTRA_STORE_KEY = "store_key";
     public static final int MY_PERMISSION_REQUEST_CALL_PHONE = 101;
+    //Add map
+    private GoogleMap mMap;
 
     //Defind toolbar;
     private Toolbar toolbar;
@@ -48,17 +67,18 @@ public class DetailsActivity extends BaseActivity {
     private String mstoreKey;
 
     Store store = new Store();
+    private LatLng mLatLngStore;
 
     //Define views
-    private View layoutCall;
-    private ImageView imgDetailImage;
-    private ImageView imgDetailFavorite;
-    private View layoutIconDirections;
-    private View layoutIconCall;
-    private TextView txtDetailStore;
-    private TextView txtDetailAddress;
-    private TextView txtDetailOpen;
-    private TextView txtDetailPhone;
+    private View        layoutCall;
+    private ImageView   imgDetailImage;
+    private ImageView   imgDetailFavorite;
+    private View        layoutIconDirections;
+    private View        layoutIconCall;
+    private TextView    txtDetailStore;
+    private TextView    txtDetailAddress;
+    private TextView    txtDetailOpen;
+    private TextView    txtDetailPhone;
 
     //Define recyclerview and adapter
     private FirebaseRecyclerAdapter<Menu, MenuViewHolder> mAdapter;
@@ -83,15 +103,15 @@ public class DetailsActivity extends BaseActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         //Initialize views
-        layoutCall = findViewById(R.id.layoutCall);
-        imgDetailImage = (ImageView) findViewById(R.id.imgDetailImage);
-        imgDetailFavorite = (ImageView) findViewById(R.id.imgDetailFavorite);
-        layoutIconDirections = (View) findViewById(R.id.layoutIconDirections);
-        layoutIconCall = (View) findViewById(R.id.layoutIconCall);
-        txtDetailStore = (TextView) findViewById(R.id.txtDetailStore);
-        txtDetailAddress = (TextView) findViewById(R.id.txtDetailAddress);
-        txtDetailOpen = (TextView) findViewById(R.id.txtDetailOpen);
-        txtDetailPhone = (TextView) findViewById(R.id.txtDetailPhone);
+        layoutCall              = findViewById(R.id.layoutCall);
+        imgDetailImage          = (ImageView) findViewById(R.id.imgDetailImage);
+        imgDetailFavorite       = (ImageView) findViewById(R.id.imgDetailFavorite);
+        layoutIconDirections    = (View) findViewById(R.id.layoutIconDirections);
+        layoutIconCall          = (View) findViewById(R.id.layoutIconCall);
+        txtDetailStore          = (TextView) findViewById(R.id.txtDetailStore);
+        txtDetailAddress        = (TextView) findViewById(R.id.txtDetailAddress);
+        txtDetailOpen           = (TextView) findViewById(R.id.txtDetailOpen);
+        txtDetailPhone          = (TextView) findViewById(R.id.txtDetailPhone);
 
         //Get store key from intent
         mstoreKey = getIntent().getStringExtra(EXTRA_STORE_KEY);
@@ -138,9 +158,16 @@ public class DetailsActivity extends BaseActivity {
 
         //Initialize event on click Call
         layoutIconCall.setOnClickListener(onCallClicked);
-
-        //Initialize event on click Call
         layoutCall.setOnClickListener(onCallClicked);
+
+        //Initialize event on click Directions
+        layoutIconDirections.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     //Event click back button
@@ -175,6 +202,8 @@ public class DetailsActivity extends BaseActivity {
                 } else {
                     imgDetailFavorite.setImageResource(R.drawable.ic_toggle_star_outline_24);
                 }
+
+                showGoogleMaps();
             }
 
             @Override
@@ -230,10 +259,97 @@ public class DetailsActivity extends BaseActivity {
     View.OnClickListener onCallClicked = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Uri uri = Uri.parse("tel:" + store.getPhone());
-            Intent intent = new Intent(Intent.ACTION_DIAL).setData(uri);
-            startActivity(intent);
+            int accessCallPhone = ContextCompat.checkSelfPermission(DetailsActivity.this, Manifest.permission.CALL_PHONE);
+
+            if(accessCallPhone == PackageManager.PERMISSION_GRANTED){
+                startActionCallPhone();
+            } else {
+                ActivityCompat.requestPermissions(DetailsActivity.this, new String[] {Manifest.permission.CALL_PHONE}, MY_PERMISSION_REQUEST_CALL_PHONE);
+
+            }
+
+
         }
     };
 
+    private void showGoogleMaps(){
+        //Initialize Maps
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+
+        mLatLngStore = convertAddresstoLatLng(store.getAddress());
+        mMap.addMarker(new MarkerOptions().position(mLatLngStore).draggable(true).title(store.getName()));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(mLatLngStore));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
+                intent.putExtra("EXTRA_STORE_LOCAL", mLatLngStore);
+            }
+        });
+    }
+
+    //Convert from address to LatLng
+    private LatLng convertAddresstoLatLng (String address){
+        LatLng mResult = null;
+
+        Geocoder geocoder = new Geocoder(this);
+
+        List<android.location.Address> mLstAddress = null;
+        try {
+            mLstAddress = geocoder.getFromLocationName(address, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Address mAddress = mLstAddress.get(0);
+        mResult = new LatLng(mAddress.getLatitude(), mAddress.getLongitude());
+
+        return mResult;
+    }
+
+    private void askCheckPermissions(){
+        if(Build.VERSION.SDK_INT >= 23){
+            int accessCallPhone = ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE);
+
+            if(accessCallPhone != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CALL_PHONE}, MY_PERMISSION_REQUEST_CALL_PHONE);
+            }
+            startActionCallPhone();
+            return;
+        }
+        startActionCallPhone();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if(requestCode == MY_PERMISSION_REQUEST_CALL_PHONE){
+            if(grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this, R.string.static_Permissions_Granted, Toast.LENGTH_SHORT).show();
+
+                startActionCallPhone();
+            } else {
+                Toast.makeText(this, R.string.static_Permissions_Denied, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void startActionCallPhone(){
+        Uri uri = Uri.parse("tel:" + store.getPhone());
+        Intent intent = new Intent(Intent.ACTION_CALL).setData(uri);
+        startActivity(intent);
+    }
 }

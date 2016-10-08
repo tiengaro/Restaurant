@@ -36,4 +36,6 @@
     <string name="title_activity_maps">Map</string>
     <string name="static_Open">Open: </string>
     <string name="static_Close">Close: </string>
+    <string name="static_Permissions_Granted">Permission Granted!</string>
+    <string name="static_Permissions_Denied">Permission Denied!</string>
 </resources>
