@@ -1,5 +1,6 @@
 package tien.edu.hutech.models;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,7 +8,7 @@ import java.util.Map;
  * Created by lvant on 02/10/2016.
  */
 
-public class Store {
+public class Store implements Serializable{
 
     private String name;
     private String address;

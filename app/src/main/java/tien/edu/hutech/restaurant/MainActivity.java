@@ -16,7 +16,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.squareup.picasso.Picasso;
 
-import tien.edu.hutech.models.Menu;
 import tien.edu.hutech.models.Store;
 import tien.edu.hutech.viewholder.StoreViewHolder;
 
@@ -80,7 +79,7 @@ public class MainActivity extends BaseActivity {
 
                 final String storeKey = storeRef.getKey();
 
-                for(int i = 0; i < 5; i++) {
+/*                for(int i = 0; i < 5; i++) {
                     Menu menu = new Menu("Cơm bò bulgogi bokkum", 48000, "https://media.foody.vn/res/g5/42888/s600x600/201682018046-com-bo-bulgogi-bokkum.jpg", storeKey);
                     Menu menu1 = new Menu("Cơm phô mai kim chi", 50000, "https://www.deliverynow.vn/content/images/no-image.png", storeKey);
                     Menu menu2 = new Menu("Cơm chu mok", 37000, "https://media.foody.vn/res/g5/42888/s600x600/20168201817-com-chu-mok.jpg", storeKey);
@@ -91,7 +90,7 @@ public class MainActivity extends BaseActivity {
                      mDatabase.child("menus").equals(menu);
                     mDatabase.child("menus").push().setValue(menu3);
 
-                }
+                }*/
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

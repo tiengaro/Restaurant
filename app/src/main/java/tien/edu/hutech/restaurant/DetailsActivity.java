@@ -7,7 +7,6 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -164,7 +163,10 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         layoutIconDirections.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, store.getAddress());
                 Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
+                //intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, store.getAddress());
+                intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, store);
                 startActivity(intent);
             }
         });
@@ -283,21 +285,12 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         mLatLngStore = convertAddresstoLatLng(store.getAddress());
         mMap.addMarker(new MarkerOptions().position(mLatLngStore).draggable(true).title(store.getName()));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(mLatLngStore));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
-                intent.putExtra("EXTRA_STORE_LOCAL", mLatLngStore);
-            }
-        });
     }
 
     //Convert from address to LatLng
@@ -317,19 +310,6 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         mResult = new LatLng(mAddress.getLatitude(), mAddress.getLongitude());
 
         return mResult;
-    }
-
-    private void askCheckPermissions(){
-        if(Build.VERSION.SDK_INT >= 23){
-            int accessCallPhone = ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE);
-
-            if(accessCallPhone != PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CALL_PHONE}, MY_PERMISSION_REQUEST_CALL_PHONE);
-            }
-            startActionCallPhone();
-            return;
-        }
-        startActionCallPhone();
     }
 
     @Override
