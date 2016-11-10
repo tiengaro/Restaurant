@@ -49,11 +49,7 @@ import java.util.Map;
 import tien.edu.hutech.GPSTracking.GPSTracker;
 import tien.edu.hutech.models.Store;
 
-public class MapsActivity extends FragmentActivity
-        implements
-        OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String TAG = "MapsActivity";
     public static final String EXTRA_STORE_LOCAL = "store_local";
@@ -62,13 +58,11 @@ public class MapsActivity extends FragmentActivity
     GPSTracker gps;
 
     private GoogleMap mMap;
-    private GoogleApiClient mGoogleApiClient;
 
     private LatLng mSourceLatLng;
     private LatLng mDesLatLng;
 
     private ProgressDialog mProgressDialog;
-    private Location mLastLocation;
     private Store mStore;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +73,7 @@ public class MapsActivity extends FragmentActivity
                 .findFragmentById(R.id.map);
 
         Intent intent = getIntent();
-        //String mLocalStore = intent.getStringExtra(EXTRA_STORE_LOCAL);
+
         mStore = (Store) intent.getSerializableExtra(EXTRA_STORE_LOCAL);
         String mLocalStore = mStore.getAddress();
         Log.d(TAG, mLocalStore);
@@ -88,18 +82,9 @@ public class MapsActivity extends FragmentActivity
 
         Log.d(TAG, mDesLatLng.toString());
 
-        if (mGoogleApiClient == null) {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(LocationServices.API)
-                    .build();
-        }
-
         showProgressDialog();
 
         mapFragment.getMapAsync(this);
-
     }
 
     @Override
@@ -108,41 +93,22 @@ public class MapsActivity extends FragmentActivity
         googleMap.getUiSettings().setZoomGesturesEnabled(true);
         googleMap.getUiSettings().setZoomControlsEnabled(true);
         googleMap.getUiSettings().setCompassEnabled(true);
-        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
 
         hideProgressDialog();
 
-        //askCheckPermissions();
+        mMap.addMarker(new MarkerOptions().position(mDesLatLng).draggable(true).title(mStore.getName()));
 
-        //mMap.addMarker(new MarkerOptions().position(mDesLatLng).draggable(true).title(mStore.getName()));
+    }
 
-        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
-            @Override
-            public boolean onMyLocationButtonClick() {
-                moveToMyCurrentLocation();
-                return true;
-            }
-        });
-
-/*        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && mGoogleApiClient.isConnected() == true) {
-
-            //moveToMyCurrentLocation();
-
-            getDirection(mSourceLatLng, mDesLatLng);
-        }*/
-        //moveToMyCurrentLocation();
-
+    private void getMyLocation(){
         gps = new GPSTracker(MapsActivity.this);
         if(gps.canGetLocation()){
             mSourceLatLng = new LatLng(gps.getLatitude(), gps.getLongitude());
+            getDirection(mSourceLatLng, mDesLatLng);
         }
         else {
             gps.showSettingsAlert();
         }
-
-        getDirection(mSourceLatLng, mDesLatLng);
     }
 
     public void getDirection(LatLng sourceLatLng, LatLng desLatLg) {
@@ -274,7 +240,6 @@ public class MapsActivity extends FragmentActivity
         return mResult;
     }
 
-/*
     private void askCheckPermissions() {
         int ACCESS_COARSE_LOCATION_PERMISSION = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION);
         int ACCESS_FINE_LOCATION_PERMISSION = ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION);
@@ -284,6 +249,9 @@ public class MapsActivity extends FragmentActivity
 
             String[] lstPermission = new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION};
             ActivityCompat.requestPermissions(MapsActivity.this, lstPermission, REQUEST_ID_PERMISSIONS);
+        }
+        else {
+            getMyLocation();
         }
     }
 
@@ -295,13 +263,12 @@ public class MapsActivity extends FragmentActivity
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 
-                //getDirection(mSourceLatLng, mDesLatLng);
+                getMyLocation();
             } else {
                 Toast.makeText(this, R.string.static_Permissions_Denied, Toast.LENGTH_SHORT).show();
             }
         }
     }
-*/
 
     private void moveMaps(LatLng local) {
         mMap.addMarker(new MarkerOptions().position(local).draggable(true).title("My Location"));
@@ -310,62 +277,12 @@ public class MapsActivity extends FragmentActivity
     }
 
     @Override
-    protected void onStart() {
-        mGoogleApiClient.connect();
-        super.onStart();
-    }
-
-    @Override
     protected void onResume() {
-        mGoogleApiClient.connect();
+        askCheckPermissions();
         super.onResume();
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        mGoogleApiClient.disconnect();
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        if (mLastLocation != null) {
-            mSourceLatLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            Log.d(TAG, "mSourceLatLng " + mSourceLatLng.toString());
-            moveMaps(mSourceLatLng);
-
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
-    private void moveToMyCurrentLocation() {
+    /*private void moveToMyCurrentLocation() {
         LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         // Creating a criteria object to retrieve provider
@@ -391,7 +308,7 @@ public class MapsActivity extends FragmentActivity
             moveMaps(mSourceLatLng);
             //mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mSourceLatLng, 18));
         }
-    }
+    }*/
 
     public void showProgressDialog() {
         if (mProgressDialog == null) {

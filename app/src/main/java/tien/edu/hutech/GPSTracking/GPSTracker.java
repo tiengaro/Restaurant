@@ -156,7 +156,7 @@ public class GPSTracker extends Service implements LocationListener {
      * Function to show settings alert dialog
      * */
     public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
+        final AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
 
         // Setting Dialog Title
         alertDialog.setTitle("GPS is settings");
