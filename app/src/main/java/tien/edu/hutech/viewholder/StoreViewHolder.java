@@ -14,23 +14,25 @@ import tien.edu.hutech.restaurant.R;
 
 public class StoreViewHolder extends RecyclerView.ViewHolder{
 
-    public ImageView imgStoreImage;
-    public ImageView imgStoreFavorite;
-    public TextView txtStoreName;
-    public TextView txtStoreOpen;
-
+    public ImageView    imgStoreImage;
+    public ImageView    imgStoreFavorite;
+    public TextView     txtStoreName;
+    public TextView     txtStoreOpen;
+    public TextView     txtStoreAddress;
 
     public StoreViewHolder(View itemView) {
         super(itemView);
 
-        imgStoreImage = (ImageView) itemView.findViewById(R.id.imgStoreImage);
-        imgStoreFavorite = (ImageView) itemView.findViewById(R.id.imgStoreFavorite);
-        txtStoreName = (TextView) itemView.findViewById(R.id.txtStoreName);
-        txtStoreOpen = (TextView) itemView.findViewById(R.id.txtStoreOpen);
+        imgStoreImage       = (ImageView) itemView.findViewById(R.id.imgStoreImage);
+        imgStoreFavorite    = (ImageView) itemView.findViewById(R.id.imgStoreFavorite);
+        txtStoreName        = (TextView) itemView.findViewById(R.id.txtStoreName);
+        txtStoreOpen        = (TextView) itemView.findViewById(R.id.txtStoreOpen);
+        txtStoreAddress     = (TextView) itemView.findViewById(R.id.txtStoreAddress);
     }
 
     public void bindToStore(Store store, View.OnClickListener favoriteClickListener) {
         txtStoreName.setText(store.getName());
+        txtStoreAddress.setText(store.getAddress());
         txtStoreOpen.setText(" " + store.getOpen() + " - " + store.getClose());
 
         imgStoreFavorite.setOnClickListener(favoriteClickListener);

@@ -1,4 +1,4 @@
-package tien.edu.hutech.restaurant;
+package tien.edu.hutech.store;
 
 import android.Manifest;
 import android.content.Intent;
@@ -45,6 +45,9 @@ import java.util.List;
 
 import tien.edu.hutech.models.Menu;
 import tien.edu.hutech.models.Store;
+import tien.edu.hutech.restaurant.BaseActivity;
+import tien.edu.hutech.restaurant.MapsActivity;
+import tien.edu.hutech.restaurant.R;
 import tien.edu.hutech.viewholder.MenuViewHolder;
 
 public class DetailsActivity extends BaseActivity implements OnMapReadyCallback {
@@ -70,6 +73,7 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
 
     //Define views
     private View        layoutCall;
+    private View        layoutDirections;
     private ImageView   imgDetailImage;
     private ImageView   imgDetailFavorite;
     private View        layoutIconDirections;
@@ -103,10 +107,11 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
 
         //Initialize views
         layoutCall              = findViewById(R.id.layoutCall);
+        layoutDirections        = findViewById(R.id.layoutDirections);
         imgDetailImage          = (ImageView) findViewById(R.id.imgDetailImage);
         imgDetailFavorite       = (ImageView) findViewById(R.id.imgDetailFavorite);
-        layoutIconDirections    = (View) findViewById(R.id.layoutIconDirections);
-        layoutIconCall          = (View) findViewById(R.id.layoutIconCall);
+        layoutIconDirections    = findViewById(R.id.layoutIconDirections);
+        layoutIconCall          = findViewById(R.id.layoutIconCall);
         txtDetailStore          = (TextView) findViewById(R.id.txtDetailStore);
         txtDetailAddress        = (TextView) findViewById(R.id.txtDetailAddress);
         txtDetailOpen           = (TextView) findViewById(R.id.txtDetailOpen);
@@ -160,16 +165,9 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         layoutCall.setOnClickListener(onCallClicked);
 
         //Initialize event on click Directions
-        layoutIconDirections.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, store.getAddress());
-                Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
-                //intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, store.getAddress());
-                intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, store);
-                startActivity(intent);
-            }
-        });
+        layoutIconDirections.setOnClickListener(onDirectionClicked);
+        layoutDirections.setOnClickListener(onDirectionClicked);
+
     }
 
     //Event click back button
@@ -274,6 +272,14 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         }
     };
 
+    View.OnClickListener onDirectionClicked = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
+            intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, store);
+            startActivity(intent);
+        }
+    };
     private void showGoogleMaps(){
         //Initialize Maps
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()

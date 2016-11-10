@@ -97,7 +97,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         hideProgressDialog();
 
         mMap.addMarker(new MarkerOptions().position(mDesLatLng).draggable(true).title(mStore.getName()));
-
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mDesLatLng, 15));
+        if(mSourceLatLng != null){
+            moveMaps(mSourceLatLng);
+        }
     }
 
     private void getMyLocation(){
