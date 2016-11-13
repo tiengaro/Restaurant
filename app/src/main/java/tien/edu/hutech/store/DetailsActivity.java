@@ -125,10 +125,10 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
                 .child("stores").child(mstoreKey);
 
         mMenuReference = FirebaseDatabase.getInstance().getReference()
-                .child("menu");
+                .child("menus");
         mManager = new GridLayoutManager(DetailsActivity.this, 2);
 
-        final Query mMenuQuery = mMenuReference.child(mstoreKey).limitToFirst(10);
+        final Query mMenuQuery = mMenuReference.orderByChild("storeKey").equalTo(mstoreKey);
 
         //Initialize recyclerview
         rcvMenu = (RecyclerView) findViewById(R.id.rcvMenu);
@@ -149,8 +149,6 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         };
 
         rcvMenu.setAdapter(mAdapter);
-
-
 
         //Initialize event on click Favorite button
         imgDetailFavorite.setOnClickListener(new View.OnClickListener() {

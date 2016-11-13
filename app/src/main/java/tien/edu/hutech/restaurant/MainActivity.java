@@ -17,6 +17,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.squareup.picasso.Picasso;
 
+import tien.edu.hutech.food.FoodActivity;
 import tien.edu.hutech.models.Store;
 import tien.edu.hutech.store.StoreActivity;
 import tien.edu.hutech.viewholder.StoreViewHolder;
@@ -46,7 +47,8 @@ public class MainActivity extends BaseActivity {
         btn_Food.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(MainActivity.this, FoodActivity.class);
+                startActivity(intent);
             }
         });
     }
