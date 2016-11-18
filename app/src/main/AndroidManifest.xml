@@ -54,7 +54,10 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name="tien.edu.hutech.store.StoreActivity" />
-        <activity android:name="tien.edu.hutech.food.FoodActivity"></activity>
+        <activity android:name="tien.edu.hutech.food.FoodActivity" />
+        <activity android:name="tien.edu.hutech.store.FilterStoreActivity" />
+        <activity android:name="tien.edu.hutech.store.SearchStoreActivity" />
+        <activity android:name="tien.edu.hutech.store.FavoriteStoreActivity"></activity>
     </application>
 
 </manifest>

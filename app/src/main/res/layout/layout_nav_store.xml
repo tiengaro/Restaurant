@@ -7,21 +7,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:openDrawer="start">
+    tools:openDrawer="start"
+    tools:context="tien.edu.hutech.store.StoreActivity">
 
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <include layout="@layout/toolbar"/>
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <include layout="@layout/toolbar"/>
+        </android.support.design.widget.AppBarLayout>
 
         <FrameLayout
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:context="tien.edu.hutech.store.StoreActivity">
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_stores"
                 android:layout_width="match_parent"

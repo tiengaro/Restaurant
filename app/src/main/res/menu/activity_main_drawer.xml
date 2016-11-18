@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_search"
+            android:icon="@drawable/ic_search_black_24dp"
+            android:title="Search" />
+        <item
+            android:id="@+id/nav_fav"
+            android:icon="@drawable/favorite"
+            android:title="Favorite" />
+    </group>
+
+    <item android:title="Area">
+        <menu>
+                <item
+                    android:id="@+id/nav_quanbinhtan"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận Bình Tân"/>
+                <item
+                    android:id="@+id/nav_quanbinhthanh"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận Bình Thạnh"/>
+                <item
+                    android:id="@+id/nav_quangovap"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận Gò Vấp"/>
+                <item
+                    android:id="@+id/nav_quanphunhuan"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận Phú Nhuận"/>
+                <item
+                    android:id="@+id/nav_quantanbinh"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận Tân Bình"/>
+                <item
+                    android:id="@+id/nav_quantanphu"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận Tân Phú"/>
+                <item
+                    android:id="@+id/nav_quan1"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 1"/>
+                <item
+                    android:id="@+id/nav_quan2"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 2"/>
+                <item
+                    android:id="@+id/nav_quan3"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 3"/>
+                <item
+                    android:id="@+id/nav_quan4"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 4"/>
+                <item
+                    android:id="@+id/nav_quan5"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 5"/>
+                <item
+                    android:id="@+id/nav_quan6"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 6"/>
+                <item
+                    android:id="@+id/nav_quan7"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 7"/>
+                <item
+                    android:id="@+id/nav_quan8"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 8"/>
+                <item
+                    android:id="@+id/nav_quan9"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 9"/>
+                <item
+                    android:id="@+id/nav_quan10"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 10"/>
+                <item
+                    android:id="@+id/nav_quan11"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 11"/>
+                <item
+                    android:id="@+id/nav_quan12"
+                    android:icon="@drawable/ic_location_city_black_24dp"
+                    android:title="Quận 12"/>
+        </menu>
+    </item>
+
+
+</menu>

@@ -8,8 +8,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-import tien.edu.hutech.models.Menu;
-import tien.edu.hutech.models.Store;
+import tien.edu.hutech.models.MenuStore;
 import tien.edu.hutech.restaurant.R;
 
 /**
@@ -33,7 +32,7 @@ public class ListMenusViewHolder extends RecyclerView.ViewHolder {
         txt_Item_Price_Food = (TextView) itemView.findViewById(R.id.txt_Item_Price_Food);
     }
 
-    public void bindToMenu(Menu menu, String nameStore) {
+    public void bindToMenu(MenuStore menu, String nameStore) {
         txt_Item_Name_Food.setText(menu.getName().toString());
         txt_Item_Name_Store.setText(nameStore);
         String price = "";

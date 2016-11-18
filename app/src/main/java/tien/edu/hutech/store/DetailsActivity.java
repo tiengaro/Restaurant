@@ -3,7 +3,6 @@ package tien.edu.hutech.store;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -43,7 +42,7 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 import java.util.List;
 
-import tien.edu.hutech.models.Menu;
+import tien.edu.hutech.models.MenuStore;
 import tien.edu.hutech.models.Store;
 import tien.edu.hutech.restaurant.BaseActivity;
 import tien.edu.hutech.restaurant.MapsActivity;
@@ -84,7 +83,7 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
     private TextView    txtDetailPhone;
 
     //Define recyclerview and adapter
-    private FirebaseRecyclerAdapter<Menu, MenuViewHolder> mAdapter;
+    private FirebaseRecyclerAdapter<MenuStore, MenuViewHolder> mAdapter;
     private RecyclerView rcvMenu;
     private GridLayoutManager mManager;
 
@@ -95,15 +94,14 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
 
         //Config Appbar
         mCollapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.collapsing);
-        mCollapsingToolbarLayout.setTitle("Restaurant");
-        mCollapsingToolbarLayout.setExpandedTitleColor(Color.WHITE);
-        mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         //Config Actionbar
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setDisplayShowCustomEnabled(true);
 
         //Initialize views
         layoutCall              = findViewById(R.id.layoutCall);
@@ -135,14 +133,14 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         rcvMenu.setHasFixedSize(true);
         rcvMenu.setLayoutManager(mManager);
 
-        mAdapter = new FirebaseRecyclerAdapter<Menu, MenuViewHolder>(
-                Menu.class,
+        mAdapter = new FirebaseRecyclerAdapter<MenuStore, MenuViewHolder>(
+                MenuStore.class,
                 R.layout.itemmenu,
                 MenuViewHolder.class,
                 mMenuQuery)
         {
             @Override
-            protected void populateViewHolder(MenuViewHolder viewHolder, Menu model, int position) {
+            protected void populateViewHolder(MenuViewHolder viewHolder, MenuStore model, int position) {
                 Picasso.with(DetailsActivity.this).load(model.getImage()).into(viewHolder.imgFood);
                 viewHolder.bindToMenu(model);
             }
@@ -196,9 +194,9 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
                 txtDetailPhone.setText(store.getPhone());
 
                 if (store.favorite.containsKey(getUid())) {
-                    imgDetailFavorite.setImageResource(R.drawable.ic_toggle_star_24);
+                    imgDetailFavorite.setImageResource(R.drawable.favorite);
                 } else {
-                    imgDetailFavorite.setImageResource(R.drawable.ic_toggle_star_outline_24);
+                    imgDetailFavorite.setImageResource(R.drawable.unfavorite);
                 }
 
                 showGoogleMaps();

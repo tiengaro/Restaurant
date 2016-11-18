@@ -1,19 +1,21 @@
 package tien.edu.hutech.models;
 
+import java.io.Serializable;
+
 /**
  * Created by Me on 10/3/2016.
  */
 
-public class Menu {
+public class MenuStore implements Serializable {
     private String name;
     private int price;
     private String image;
     private String storeKey;
 
-    public Menu() {
+    public MenuStore() {
     }
 
-    public Menu(String name, int price, String image, String keyStore) {
+    public MenuStore(String name, int price, String image, String keyStore) {
 
         this.name = name;
         this.price = price;

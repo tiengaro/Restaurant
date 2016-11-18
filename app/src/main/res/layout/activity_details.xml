@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/activity_details"
-    tools:context="tien.edu.hutech.restaurant.tien.edu.hutech.store.DetailsActivity"
+    tools:context="tien.edu.hutech.store.DetailsActivity"
     android:fitsSystemWindows="true">
 
     <android.support.design.widget.AppBarLayout
@@ -15,6 +15,7 @@
         app:elevation="5dp"
         android:fitsSystemWindows="true"
         style="@style/AppTheme.AppBarOverlay"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         android:layout_height="250dp">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -83,7 +84,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/imgDetailFavorite"
-                    android:src="@drawable/ic_toggle_star_24"
+                    android:src="@drawable/favorite"
                     android:layout_marginRight="5dp"
                     android:background="?attr/selectableItemBackground"
                     android:layout_gravity="center"/>

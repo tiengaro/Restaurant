@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DataSnapshot;
@@ -17,13 +16,10 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-import tien.edu.hutech.models.Menu;
-import tien.edu.hutech.models.Store;
+import tien.edu.hutech.models.MenuStore;
 import tien.edu.hutech.restaurant.R;
 import tien.edu.hutech.store.DetailsActivity;
-import tien.edu.hutech.store.StoreActivity;
 import tien.edu.hutech.viewholder.ListMenusViewHolder;
-import tien.edu.hutech.viewholder.StoreViewHolder;
 
 public class FoodActivity extends AppCompatActivity {
 
@@ -31,7 +27,7 @@ public class FoodActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
 
     //Define recycler view
-    private FirebaseRecyclerAdapter<Menu, ListMenusViewHolder> mAdapter;
+    private FirebaseRecyclerAdapter<MenuStore, ListMenusViewHolder> mAdapter;
     private RecyclerView recycler_List_Foods;
     private LinearLayoutManager mManager;
     private String mStoreName;
@@ -62,13 +58,13 @@ public class FoodActivity extends AppCompatActivity {
 
         final Query menusQuery = mDatabase.child("menus").limitToFirst(100);
 
-        mAdapter = new FirebaseRecyclerAdapter<Menu, ListMenusViewHolder>(
-                Menu.class,
+        mAdapter = new FirebaseRecyclerAdapter<MenuStore, ListMenusViewHolder>(
+                MenuStore.class,
                 R.layout.item_list_food,
                 ListMenusViewHolder.class,
                 menusQuery) {
             @Override
-            protected void populateViewHolder(ListMenusViewHolder viewHolder, Menu model, int position) {
+            protected void populateViewHolder(ListMenusViewHolder viewHolder, MenuStore model, int position) {
 
                 final String storeKey = model.getStoreKey();
 

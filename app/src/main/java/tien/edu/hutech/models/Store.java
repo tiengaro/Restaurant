@@ -16,10 +16,22 @@ public class Store implements Serializable{
     private String open;
     private String close;
     private String phone;
+    private String district;
+
     public Map<String, Boolean> favorite = new HashMap<>();
     public Map<String, Boolean> menu = new HashMap<>();
 
     public Store() {
+    }
+
+    public Store(String name, String address, String image, String open, String close, String phone, String district) {
+        this.name = name;
+        this.address = address;
+        this.image = image;
+        this.open = open;
+        this.close = close;
+        this.phone = phone;
+        this.district = district;
     }
 
     public Store(String name, String address, String image, String open, String close, String phone) {
@@ -79,5 +91,13 @@ public class Store implements Serializable{
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
     }
 }

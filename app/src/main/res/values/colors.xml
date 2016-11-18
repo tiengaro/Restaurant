@@ -19,4 +19,7 @@
     <color name="btn_logut_bg">#ff6861</color>
     <color name="divider">#88cccccc</color>
     <color name="staticStore">#FF229900</color>
+
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
 </resources>

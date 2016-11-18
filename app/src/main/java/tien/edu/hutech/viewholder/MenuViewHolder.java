@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
-import tien.edu.hutech.models.Menu;
+import tien.edu.hutech.models.MenuStore;
 import tien.edu.hutech.restaurant.R;
 
 /**
@@ -31,7 +31,7 @@ public class MenuViewHolder extends RecyclerView.ViewHolder{
         txtFoodPrice = (TextView) itemView.findViewById(R.id.txtFoodPrice);
     }
 
-    public void bindToMenu (Menu menu){
+    public void bindToMenu (MenuStore menu){
         txtFoodName.setText(menu.getName());
         String price = "";
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
