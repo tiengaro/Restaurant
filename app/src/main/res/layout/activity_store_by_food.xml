@@ -1,14 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:tools="http://schemas.android.com/tools"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-android:id="@+id/activity_filter_store"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-android:orientation="vertical"
-tools:context="tien.edu.hutech.store.SearchStoreActivity">>
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_filter_store"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="tien.edu.hutech.food.StoreByFoodActivity">
 
-<include layout="@layout/toolbar"/>
+    <include layout="@layout/toolbar"/>
 
 <android.support.v7.widget.RecyclerView
     android:id="@+id/recycler_stores"

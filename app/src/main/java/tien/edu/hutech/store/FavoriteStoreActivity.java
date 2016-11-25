@@ -6,7 +6,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,6 +55,7 @@ public class FavoriteStoreActivity extends BaseActivity {
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("Favorite");
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
@@ -143,8 +143,7 @@ public class FavoriteStoreActivity extends BaseActivity {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(FavoriteStoreActivity.this, DetailsActivity.class);
-                    intent.putExtra(DetailsActivity.EXTRA_STORE_KEY, storeKey);
-                    Log.e("SearchStore", storeKey);
+                    intent.putExtra(DetailsActivity.EXTRA_STORE_KEY, model);
                     startActivity(intent);
                 }
             });

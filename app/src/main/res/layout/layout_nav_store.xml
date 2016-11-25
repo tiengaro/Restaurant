@@ -46,6 +46,6 @@
         app:itemTextColor="@color/navdrawer_item"
         app:itemIconTint="@color/navdrawer_item"
         app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+        app:menu="@menu/activity_store_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

@@ -1,4 +1,4 @@
-package tien.edu.hutech.store;
+package tien.edu.hutech.food;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,11 +22,12 @@ import com.squareup.picasso.Picasso;
 import tien.edu.hutech.models.Store;
 import tien.edu.hutech.restaurant.BaseActivity;
 import tien.edu.hutech.restaurant.R;
+import tien.edu.hutech.store.DetailsActivity;
 import tien.edu.hutech.viewholder.StoreViewHolder;
 
-public class FilterStoreActivity extends BaseActivity {
+public class StoreByFoodActivity extends BaseActivity {
 
-    public static final String EXTRA_STORE_DISTRICT = "store_district";
+    public static final String EXTRA_BRAND = "store_district";
 
     //Define database reference
     private DatabaseReference mDatabase;
@@ -35,7 +36,7 @@ public class FilterStoreActivity extends BaseActivity {
     private FirebaseRecyclerAdapter<Store, StoreViewHolder> mAdapter;
     private RecyclerView recycler_stores;
     private LinearLayoutManager mManager;
-    private String mDistrict;
+    private String mBrand;
 
     @Override
     protected void onDestroy() {
@@ -57,10 +58,10 @@ public class FilterStoreActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_filter_store);
+        setContentView(R.layout.activity_store_by_food);
 
         Intent intent = getIntent();
-        mDistrict = intent.getStringExtra(EXTRA_STORE_DISTRICT);
+        mBrand = intent.getStringExtra(EXTRA_BRAND);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -69,32 +70,21 @@ public class FilterStoreActivity extends BaseActivity {
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
-        actionBar.setTitle(mDistrict);
+        actionBar.setTitle(mBrand);
 
         //Create database reference
         mDatabase = FirebaseDatabase.getInstance().getReference().child("stores");
 
-/*        Store store = new Store();
-        store.setImage("https://media.foody.vn/res/g5/42888/prof/s480x300/foody-mobile-hanuri-svh-mb-jpg-698-635742136356152649.jpg");
-        store.setAddress("405A Sư Vạn Hạnh P.12 , Quận 10, TP. HCM");
-        store.setName("Ăn Vặt Quán Ngon");
-        store.setOpen("7:00");
-        store.setClose("18:00");
-        store.setPhone("+84 989 112 644");
-
-        for(int i = 0; i < 50; i++) {
-            mDatabase.child("stores").push().setValue(store);
-        }*/
         //Add view
         recycler_stores = (RecyclerView) findViewById(R.id.recycler_stores);
         recycler_stores.setHasFixedSize(true);
 
-        mManager = new LinearLayoutManager(FilterStoreActivity.this);
+        mManager = new LinearLayoutManager(StoreByFoodActivity.this);
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         recycler_stores.setLayoutManager(mManager);
 
-        final Query storeQuery = mDatabase.orderByChild("district").equalTo(mDistrict);
+        final Query storeQuery = mDatabase.orderByChild("brand").equalTo(mBrand);
 
         mAdapter = new FirebaseRecyclerAdapter<Store, StoreViewHolder>(
                 Store.class,
@@ -105,16 +95,17 @@ public class FilterStoreActivity extends BaseActivity {
             protected void populateViewHolder(StoreViewHolder viewHolder, final Store model, int position) {
                 final DatabaseReference storeRef = getRef(position);
 
+
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(FilterStoreActivity.this, DetailsActivity.class);
+                        Intent intent = new Intent(StoreByFoodActivity.this, DetailsActivity.class);
                         intent.putExtra(DetailsActivity.EXTRA_STORE_KEY, model);
                         startActivity(intent);
                     }
                 });
 
-                Picasso.with(FilterStoreActivity.this).load(model.getImage()).into(viewHolder.imgStoreImage);
+                Picasso.with(StoreByFoodActivity.this).load(model.getImage()).into(viewHolder.imgStoreImage);
 
                 if(model.favorite.containsKey(getUid())){
                     viewHolder.imgStoreFavorite.setImageResource(R.drawable.favorite);
@@ -134,9 +125,7 @@ public class FilterStoreActivity extends BaseActivity {
         };
 
         recycler_stores.setAdapter(mAdapter);
-
     }
-
     private void onFavoriteClicked(DatabaseReference storeRef) {
         storeRef.runTransaction(new Transaction.Handler() {
             @Override

@@ -1,13 +1,22 @@
 package tien.edu.hutech.food;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -16,12 +25,15 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+import tien.edu.hutech.Auth.SignInActivity;
 import tien.edu.hutech.models.MenuStore;
+import tien.edu.hutech.models.User;
+import tien.edu.hutech.restaurant.BaseActivity;
 import tien.edu.hutech.restaurant.R;
-import tien.edu.hutech.store.DetailsActivity;
 import tien.edu.hutech.viewholder.ListMenusViewHolder;
 
-public class FoodActivity extends AppCompatActivity {
+public class FoodActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener{
 
     //Define database reference
     private DatabaseReference mDatabase;
@@ -32,6 +44,13 @@ public class FoodActivity extends AppCompatActivity {
     private LinearLayoutManager mManager;
     private String mStoreName;
 
+    private DrawerLayout drawer;
+
+    private TextView nadrawer_loginheader_name;
+    private Button navdrawer_loginheader_arrow;
+    private TextView        nadrawer_loginheader_email;
+    private CircleImageView nadrawer_loginheader_picture;
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -41,9 +60,39 @@ public class FoodActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_food);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("Foods");
+        setSupportActionBar(toolbar);
+
+        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        View headerLayout = navigationView.getHeaderView(0);
+        nadrawer_loginheader_name       = (TextView) headerLayout.findViewById(R.id.nadrawer_loginheader_name);
+        navdrawer_loginheader_arrow     = (Button) headerLayout.findViewById(R.id.navdrawer_loginheader_arrow);
+        nadrawer_loginheader_email      = (TextView) headerLayout.findViewById(R.id.nadrawer_loginheader_email);
+        nadrawer_loginheader_picture    = (CircleImageView) headerLayout.findViewById(R.id.nadrawer_loginheader_picture);
+
+        getUser();
 
         //Create database reference
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -56,6 +105,16 @@ public class FoodActivity extends AppCompatActivity {
         mManager.setStackFromEnd(true);
         recycler_List_Foods.setLayoutManager(mManager);
 
+        navdrawer_loginheader_arrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                mAuth.signOut();
+                Intent intent = new Intent(FoodActivity.this, SignInActivity.class);
+                startActivity(intent);
+            }
+        });
+
         final Query menusQuery = mDatabase.child("menus").limitToFirst(100);
 
         mAdapter = new FirebaseRecyclerAdapter<MenuStore, ListMenusViewHolder>(
@@ -64,39 +123,62 @@ public class FoodActivity extends AppCompatActivity {
                 ListMenusViewHolder.class,
                 menusQuery) {
             @Override
-            protected void populateViewHolder(ListMenusViewHolder viewHolder, MenuStore model, int position) {
-
-                final String storeKey = model.getStoreKey();
-
-                final DatabaseReference storeRef = FirebaseDatabase.getInstance().getReference().child("stores").child(storeKey);
-
-                storeRef.child("name").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        mStoreName = dataSnapshot.getValue().toString();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+            protected void populateViewHolder(final ListMenusViewHolder viewHolder, final MenuStore model, int position) {
 
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(FoodActivity.this, DetailsActivity.class);
-                        intent.putExtra(DetailsActivity.EXTRA_STORE_KEY, storeKey);
+                        Intent intent = new Intent(FoodActivity.this, StoreByFoodActivity.class);
+                        intent.putExtra(StoreByFoodActivity.EXTRA_BRAND, model.getBrand());
                         startActivity(intent);
                     }
                 });
 
                 Picasso.with(FoodActivity.this).load(model.getImage()).into(viewHolder.img_Item_Food);
 
-                viewHolder.bindToMenu(model, mStoreName);
+                viewHolder.bindToMenu(model);
             }
         };
 
         recycler_List_Foods.setAdapter(mAdapter);
     }
+
+    public void getUser() {
+        DatabaseReference mData = FirebaseDatabase.getInstance().getReference("users").child(getUid());
+        mData.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String mUid = dataSnapshot.getKey();
+                if (mUid.equals(getUid())) {
+                    user = dataSnapshot.getValue(User.class);
+                    nadrawer_loginheader_name.setText(user.getUsername());
+                    nadrawer_loginheader_email.setText(user.getEmail());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == R.id.nav_home){
+            finish();
+        }
+        else if(id == R.id.nav_search){
+            Intent intent = new Intent(FoodActivity.this, SearchFoodActivity.class);
+            startActivity(intent);
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
 }

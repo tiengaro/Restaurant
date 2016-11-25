@@ -42,4 +42,14 @@
     <string name="static_Permissions_Granted">Permission Granted!</string>
     <string name="static_Permissions_Denied">Permission Denied!</string>
     <string name="title_activity_food">FoodActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="spinner_list_radius">
+        <item> 500m </item>
+        <item> 1km </item>
+        <item> 2km </item>
+        <item> 4km </item>
+    </string-array>
 </resources>

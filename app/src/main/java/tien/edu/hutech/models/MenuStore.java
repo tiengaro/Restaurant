@@ -11,21 +11,29 @@ public class MenuStore implements Serializable {
     private int price;
     private String image;
     private String storeKey;
+    private String brand;
 
     public MenuStore() {
     }
 
-    public MenuStore(String name, int price, String image, String keyStore) {
-
+    public MenuStore(String name, int price, String image, String brand) {
         this.name = name;
         this.price = price;
         this.image = image;
-        this.storeKey = keyStore;
+        this.brand = brand;
     }
 
     public String getName() {
 
         return name;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 
     public void setName(String name) {
@@ -48,11 +56,4 @@ public class MenuStore implements Serializable {
         this.image = image;
     }
 
-    public String getStoreKey() {
-        return storeKey;
-    }
-
-    public void setStoreKey(String storeKey) {
-        this.storeKey = storeKey;
-    }
 }

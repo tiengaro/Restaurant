@@ -15,7 +15,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -65,9 +64,8 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
     private DatabaseReference mStoreReference;
     private DatabaseReference mMenuReference;
     ValueEventListener mStoreListener;
-    private String mstoreKey;
+    private Store mStore = new Store();
 
-    Store store = new Store();
     private LatLng mLatLngStore;
 
     //Define views
@@ -116,17 +114,29 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         txtDetailPhone          = (TextView) findViewById(R.id.txtDetailPhone);
 
         //Get store key from intent
-        mstoreKey = getIntent().getStringExtra(EXTRA_STORE_KEY);
+        Intent intent = getIntent();
+        mStore = (Store) intent.getSerializableExtra(EXTRA_STORE_KEY);
 
-        //Initialize Database for a store
-        mStoreReference = FirebaseDatabase.getInstance().getReference()
-                .child("stores").child(mstoreKey);
+        Picasso.with(DetailsActivity.this).load(mStore.getImage()).into(imgDetailImage);
+        mCollapsingToolbarLayout.setTitle(mStore.getName());
+        txtDetailStore.setText(mStore.getName());
+        txtDetailAddress.setText(mStore.getAddress());
+        txtDetailOpen.setText(" " + mStore.getOpen() + " - " + mStore.getClose());
+        txtDetailPhone.setText(mStore.getPhone());
+
+        if (mStore.favorite.containsKey(getUid())) {
+            imgDetailFavorite.setImageResource(R.drawable.favorite);
+        } else {
+            imgDetailFavorite.setImageResource(R.drawable.unfavorite);
+        }
+
+        showGoogleMaps();
 
         mMenuReference = FirebaseDatabase.getInstance().getReference()
                 .child("menus");
         mManager = new GridLayoutManager(DetailsActivity.this, 2);
 
-        final Query mMenuQuery = mMenuReference.orderByChild("storeKey").equalTo(mstoreKey);
+        final Query mMenuQuery = mMenuReference.orderByChild("brand").equalTo(mStore.getBrand());
 
         //Initialize recyclerview
         rcvMenu = (RecyclerView) findViewById(R.id.rcvMenu);
@@ -149,12 +159,12 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         rcvMenu.setAdapter(mAdapter);
 
         //Initialize event on click Favorite button
-        imgDetailFavorite.setOnClickListener(new View.OnClickListener() {
+/*        imgDetailFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onFavoriteClicked(mStoreReference);
             }
-        });
+        });*/
 
         //Initialize event on click Call
         layoutIconCall.setOnClickListener(onCallClicked);
@@ -180,48 +190,8 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
     protected void onStart() {
         super.onStart();
 
-        //Initialize event get data from Firebase
-        ValueEventListener storeListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                store = dataSnapshot.getValue(Store.class);
-
-                Picasso.with(DetailsActivity.this).load(store.getImage()).into(imgDetailImage);
-                mCollapsingToolbarLayout.setTitle(store.getName());
-                txtDetailStore.setText(store.getName());
-                txtDetailAddress.setText(store.getAddress());
-                txtDetailOpen.setText(" " + store.getOpen() + " - " + store.getClose());
-                txtDetailPhone.setText(store.getPhone());
-
-                if (store.favorite.containsKey(getUid())) {
-                    imgDetailFavorite.setImageResource(R.drawable.favorite);
-                } else {
-                    imgDetailFavorite.setImageResource(R.drawable.unfavorite);
-                }
-
-                showGoogleMaps();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "loadStore:onCancelled", databaseError.toException());
-                Toast.makeText(DetailsActivity.this, "Failed to load post.", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        mStoreReference.addValueEventListener(storeListener);
-
-        mStoreListener = storeListener;
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        if (mStoreListener != null) {
-            mStoreReference.removeEventListener(mStoreListener);
-        }
-    }
 
     //Event click Favorite
     private void onFavoriteClicked(DatabaseReference storeRef) {
@@ -272,7 +242,7 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
-            intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, store);
+            intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, mStore);
             startActivity(intent);
         }
     };
@@ -289,10 +259,10 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-        mLatLngStore = convertAddresstoLatLng(store.getAddress());
-        mMap.addMarker(new MarkerOptions().position(mLatLngStore).draggable(true).title(store.getName()));
+        mLatLngStore = new LatLng(mStore.getLat(), mStore.getLng());
+        mMap.addMarker(new MarkerOptions().position(mLatLngStore).draggable(true).title(mStore.getName()));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(mLatLngStore));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(18));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
     }
 
     //Convert from address to LatLng
@@ -330,7 +300,7 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
     }
 
     private void startActionCallPhone(){
-        Uri uri = Uri.parse("tel:" + store.getPhone());
+        Uri uri = Uri.parse("tel:" + mStore.getPhone());
         Intent intent = new Intent(Intent.ACTION_CALL).setData(uri);
         startActivity(intent);
     }

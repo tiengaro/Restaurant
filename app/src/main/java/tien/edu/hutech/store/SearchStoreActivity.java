@@ -74,6 +74,7 @@ public class SearchStoreActivity extends BaseActivity {
         inflater.inflate(R.menu.mnu, menu);
         MenuItem menuSearch = menu.findItem(R.id.mnu_search);
         SearchView searchView = (SearchView) menuSearch.getActionView();
+        searchView.setIconifiedByDefault(false);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -169,7 +170,7 @@ public class SearchStoreActivity extends BaseActivity {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(SearchStoreActivity.this, DetailsActivity.class);
-                    intent.putExtra(DetailsActivity.EXTRA_STORE_KEY, storeKey);
+                    intent.putExtra(DetailsActivity.EXTRA_STORE_KEY, model);
                     Log.e("SearchStore", storeKey);
                     startActivity(intent);
                 }

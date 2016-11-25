@@ -18,7 +18,6 @@ import tien.edu.hutech.restaurant.R;
 public class ListMenusViewHolder extends RecyclerView.ViewHolder {
 
     public TextView txt_Item_Name_Food;
-    public TextView txt_Item_Name_Store;
     public TextView txt_Item_Price_Food;
     public ImageView img_Item_Food;
 
@@ -28,13 +27,11 @@ public class ListMenusViewHolder extends RecyclerView.ViewHolder {
 
         img_Item_Food       = (ImageView) itemView.findViewById(R.id.img_Item_Food);
         txt_Item_Name_Food  = (TextView) itemView.findViewById(R.id.txt_Item_Name_Food);
-        txt_Item_Name_Store = (TextView) itemView.findViewById(R.id.txt_Item_Name_Store);
         txt_Item_Price_Food = (TextView) itemView.findViewById(R.id.txt_Item_Price_Food);
     }
 
-    public void bindToMenu(MenuStore menu, String nameStore) {
+    public void bindToMenu(MenuStore menu) {
         txt_Item_Name_Food.setText(menu.getName().toString());
-        txt_Item_Name_Store.setText(nameStore);
         String price = "";
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             price = NumberFormat.getNumberInstance(Locale.US).format(menu.getPrice());
