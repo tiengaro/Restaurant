@@ -156,7 +156,7 @@ public class SearchFoodActivity extends BaseActivity {
             viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(SearchFoodActivity.this, DetailsActivity.class);
+                    Intent intent = new Intent(SearchFoodActivity.this, StoreByFoodActivity.class);
                     intent.putExtra(DetailsActivity.EXTRA_STORE_KEY, model.getBrand());
                     startActivity(intent);
                 }

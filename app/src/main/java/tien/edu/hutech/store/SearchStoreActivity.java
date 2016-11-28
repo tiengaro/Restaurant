@@ -14,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -28,17 +29,23 @@ import java.util.ArrayList;
 
 import tien.edu.hutech.models.Store;
 import tien.edu.hutech.restaurant.BaseActivity;
+import tien.edu.hutech.restaurant.LoadSQLite;
 import tien.edu.hutech.restaurant.R;
 import tien.edu.hutech.viewholder.StoreViewHolder;
+
+import static tien.edu.hutech.restaurant.R.layout.item;
 
 public class SearchStoreActivity extends BaseActivity {
 
     RecyclerView recycler_stores;
     AdapterStore adapterStore;
     ArrayList<Store> stores;
+    ArrayList<Store> storesOffline;
     ArrayList<String> mKeyStores;
     private LinearLayoutManager mManager;
     private DatabaseReference mData;
+    private AdapterStoreOffline adapterStoreOffline;
+    private LoadSQLite loadSQLite;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,17 +60,25 @@ public class SearchStoreActivity extends BaseActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        stores = new ArrayList<>();
-        mKeyStores = new ArrayList<>();
-
         recycler_stores = (RecyclerView) findViewById(R.id.recycler_stores);
         mManager = new LinearLayoutManager(SearchStoreActivity.this);
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
         recycler_stores.setLayoutManager(mManager);
 
-        adapterStore = new AdapterStore(stores, mKeyStores);
-        recycler_stores.setAdapter(adapterStore);
+        if(checkNetwork()) {
+            stores = new ArrayList<>();
+            mKeyStores = new ArrayList<>();
+            adapterStore = new AdapterStore(stores, mKeyStores);
+            recycler_stores.setAdapter(adapterStore);
+        }
+        else {
+            Toast.makeText(this, "Not Connected", Toast.LENGTH_SHORT).show();
+            loadSQLite = new LoadSQLite(this);
+            storesOffline = new ArrayList<>();
+            adapterStoreOffline = new AdapterStoreOffline(storesOffline);
+            recycler_stores.setAdapter(adapterStoreOffline);
+        }
 
     }
 
@@ -79,7 +94,12 @@ public class SearchStoreActivity extends BaseActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if(query.isEmpty() == false){
-                    getData(query);
+                    if(checkNetwork()) {
+                        getData(query);
+                    }
+                    else {
+                        getDataOffline(query);
+                    }
                     return true;
                 }
                 return false;
@@ -101,6 +121,11 @@ public class SearchStoreActivity extends BaseActivity {
             return true;
         }
         return false;
+    }
+
+    private void getDataOffline(String mKeyWord){
+        storesOffline = loadSQLite.xuLySaoChepTimKiemStore(mKeyWord);
+        adapterStoreOffline.notifyDataSetChanged();
     }
 
     private void getData(final String mKeyWord){
@@ -154,7 +179,7 @@ public class SearchStoreActivity extends BaseActivity {
         @Override
         public StoreViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            View itemView = inflater.inflate(R.layout.item, parent, false);
+            View itemView = inflater.inflate(item, parent, false);
             return new StoreViewHolder(itemView);
         }
 
@@ -213,6 +238,54 @@ public class SearchStoreActivity extends BaseActivity {
                         }
                     });
                     adapterStore.notifyDataSetChanged();
+                }
+            });
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return stores.size();
+        }
+
+    }
+
+    public class AdapterStoreOffline extends RecyclerView.Adapter<StoreViewHolder> {
+
+        ArrayList<Store> stores;
+        public AdapterStoreOffline(ArrayList<Store> stores) {
+            this.stores = stores;
+        }
+
+        @Override
+        public StoreViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            View itemView = inflater.inflate(R.layout.item, parent, false);
+            return new StoreViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(final StoreViewHolder viewHolder, int position) {
+            final Store model = stores.get(position);
+
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(SearchStoreActivity.this, DetailsActivity.class);
+                    intent.putExtra(DetailsActivity.EXTRA_STORE_KEY, model);
+                    Log.e("SearchStore", model.getKeyStore());
+                    startActivity(intent);
+                }
+            });
+
+//            byte[] bytes = model.getBytesImage();
+//            Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+//            viewHolder.imgStoreImage.setImageBitmap(bm);
+            viewHolder.imgStoreImage.setImageDrawable(getResources().getDrawable(R.drawable.nopicture));
+            viewHolder.bindToStore(model, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    adapterStoreOffline.notifyDataSetChanged();
                 }
             });
 

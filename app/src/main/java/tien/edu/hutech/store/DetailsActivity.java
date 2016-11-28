@@ -15,8 +15,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,11 +41,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import tien.edu.hutech.models.MenuStore;
 import tien.edu.hutech.models.Store;
 import tien.edu.hutech.restaurant.BaseActivity;
+import tien.edu.hutech.restaurant.LoadSQLite;
 import tien.edu.hutech.restaurant.MapsActivity;
 import tien.edu.hutech.restaurant.R;
 import tien.edu.hutech.viewholder.MenuViewHolder;
@@ -117,54 +121,18 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         Intent intent = getIntent();
         mStore = (Store) intent.getSerializableExtra(EXTRA_STORE_KEY);
 
-        Picasso.with(DetailsActivity.this).load(mStore.getImage()).into(imgDetailImage);
         mCollapsingToolbarLayout.setTitle(mStore.getName());
         txtDetailStore.setText(mStore.getName());
         txtDetailAddress.setText(mStore.getAddress());
         txtDetailOpen.setText(" " + mStore.getOpen() + " - " + mStore.getClose());
         txtDetailPhone.setText(mStore.getPhone());
 
-        if (mStore.favorite.containsKey(getUid())) {
-            imgDetailFavorite.setImageResource(R.drawable.favorite);
-        } else {
-            imgDetailFavorite.setImageResource(R.drawable.unfavorite);
-        }
-
-        showGoogleMaps();
-
-        mMenuReference = FirebaseDatabase.getInstance().getReference()
-                .child("menus");
-        mManager = new GridLayoutManager(DetailsActivity.this, 2);
-
-        final Query mMenuQuery = mMenuReference.orderByChild("brand").equalTo(mStore.getBrand());
-
         //Initialize recyclerview
+        mManager = new GridLayoutManager(DetailsActivity.this, 2);
         rcvMenu = (RecyclerView) findViewById(R.id.rcvMenu);
         rcvMenu.setHasFixedSize(true);
         rcvMenu.setLayoutManager(mManager);
 
-        mAdapter = new FirebaseRecyclerAdapter<MenuStore, MenuViewHolder>(
-                MenuStore.class,
-                R.layout.itemmenu,
-                MenuViewHolder.class,
-                mMenuQuery)
-        {
-            @Override
-            protected void populateViewHolder(MenuViewHolder viewHolder, MenuStore model, int position) {
-                Picasso.with(DetailsActivity.this).load(model.getImage()).into(viewHolder.imgFood);
-                viewHolder.bindToMenu(model);
-            }
-        };
-
-        rcvMenu.setAdapter(mAdapter);
-
-        //Initialize event on click Favorite button
-/*        imgDetailFavorite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onFavoriteClicked(mStoreReference);
-            }
-        });*/
 
         //Initialize event on click Call
         layoutIconCall.setOnClickListener(onCallClicked);
@@ -173,6 +141,75 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
         //Initialize event on click Directions
         layoutIconDirections.setOnClickListener(onDirectionClicked);
         layoutDirections.setOnClickListener(onDirectionClicked);
+
+        Boolean isConnected = checkNetwork();
+        if(isConnected){
+            Picasso.with(DetailsActivity.this).load(mStore.getImage()).into(imgDetailImage);
+
+            if (mStore.favorite.containsKey(getUid())) {
+                imgDetailFavorite.setImageResource(R.drawable.favorite);
+            } else {
+                imgDetailFavorite.setImageResource(R.drawable.unfavorite);
+            }
+            showGoogleMaps();
+
+            mMenuReference = FirebaseDatabase.getInstance().getReference()
+                    .child("menus");
+
+            final Query mMenuQuery = mMenuReference.orderByChild("brand").equalTo(mStore.getBrand());
+
+            mAdapter = new FirebaseRecyclerAdapter<MenuStore, MenuViewHolder>(
+                    MenuStore.class,
+                    R.layout.itemmenu,
+                    MenuViewHolder.class,
+                    mMenuQuery)
+            {
+                @Override
+                protected void populateViewHolder(MenuViewHolder viewHolder, MenuStore model, int position) {
+                    Picasso.with(DetailsActivity.this).load(model.getImage()).into(viewHolder.imgFood);
+                    viewHolder.bindToMenu(model);
+                }
+            };
+
+            rcvMenu.setAdapter(mAdapter);
+
+        } else {
+            Toast.makeText(this, "Not Connected", Toast.LENGTH_SHORT).show();
+            imgDetailImage.setImageDrawable(getResources().getDrawable(R.drawable.nopicture));
+            LoadSQLite loadSQLite = new LoadSQLite(this);
+            ArrayList<MenuStore> menuStores = loadSQLite.xuLySaoChepMenuTheoStore(mStore.getBrand());
+            AdapterMenu adapterMenu = new AdapterMenu(menuStores);
+            rcvMenu.setAdapter(adapterMenu);
+        }
+
+    }
+
+    public class AdapterMenu extends RecyclerView.Adapter<MenuViewHolder> {
+
+        ArrayList<MenuStore> mMenus;
+        public AdapterMenu(ArrayList<MenuStore> mMenus) {
+            this.mMenus = mMenus;
+        }
+
+        @Override
+        public MenuViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            View itemView = inflater.inflate(R.layout.itemmenu, parent, false);
+            return new MenuViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(final MenuViewHolder viewHolder, int position) {
+            final MenuStore model = mMenus.get(position);
+
+            viewHolder.imgFood.setImageDrawable(getResources().getDrawable(R.drawable.nopicture));
+            viewHolder.bindToMenu(model);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mMenus.size();
+        }
 
     }
 
@@ -241,9 +278,13 @@ public class DetailsActivity extends BaseActivity implements OnMapReadyCallback 
     View.OnClickListener onDirectionClicked = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
-            intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, mStore);
-            startActivity(intent);
+            if(checkNetwork()) {
+                Intent intent = new Intent(DetailsActivity.this, MapsActivity.class);
+                intent.putExtra(MapsActivity.EXTRA_STORE_LOCAL, mStore);
+                startActivity(intent);
+            }
+            else
+                Toast.makeText(DetailsActivity.this, "Không thể sử dụng tính năng này khi Offline", Toast.LENGTH_SHORT).show();
         }
     };
     private void showGoogleMaps(){

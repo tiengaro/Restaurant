@@ -12,6 +12,8 @@ public class MenuStore implements Serializable {
     private String image;
     private String storeKey;
     private String brand;
+    private String keyMenu;
+    private byte[] bytesImage;
 
     public MenuStore() {
     }
@@ -26,6 +28,30 @@ public class MenuStore implements Serializable {
     public String getName() {
 
         return name;
+    }
+
+    public String getStoreKey() {
+        return storeKey;
+    }
+
+    public byte[] getBytesImage() {
+        return bytesImage;
+    }
+
+    public void setBytesImage(byte[] bytesImage) {
+        this.bytesImage = bytesImage;
+    }
+
+    public void setStoreKey(String storeKey) {
+        this.storeKey = storeKey;
+    }
+
+    public String getKeyMenu() {
+        return keyMenu;
+    }
+
+    public void setKeyMenu(String keyMenu) {
+        this.keyMenu = keyMenu;
     }
 
     public String getBrand() {

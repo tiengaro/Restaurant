@@ -60,6 +60,12 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        boolean isConnected = checkNetwork();
+        if(isConnected) {
+            Intent intent = new Intent(MainActivity.this, LoadDataService.class);
+            startService(intent);
+        }
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Home");
         setSupportActionBar(toolbar);

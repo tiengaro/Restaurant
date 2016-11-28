@@ -21,6 +21,7 @@ public class Store implements Serializable{
     private double lat;
     private double lng;
     private String keyStore;
+    private byte[] bytesImage;
 
     public Map<String, Boolean> favorite = new HashMap<>();
 
@@ -58,6 +59,14 @@ public class Store implements Serializable{
         this.open = open;
         this.close = close;
         this.phone = phone;
+    }
+
+    public byte[] getBytesImage() {
+        return bytesImage;
+    }
+
+    public void setBytesImage(byte[] bytesImage) {
+        this.bytesImage = bytesImage;
     }
 
     public String getKeyStore() {

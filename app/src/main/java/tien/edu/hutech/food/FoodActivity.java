@@ -10,10 +10,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,11 +28,14 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import tien.edu.hutech.Auth.SignInActivity;
 import tien.edu.hutech.models.MenuStore;
 import tien.edu.hutech.models.User;
 import tien.edu.hutech.restaurant.BaseActivity;
+import tien.edu.hutech.restaurant.LoadSQLite;
 import tien.edu.hutech.restaurant.R;
 import tien.edu.hutech.viewholder.ListMenusViewHolder;
 
@@ -50,6 +56,8 @@ public class FoodActivity extends BaseActivity implements NavigationView.OnNavig
     private Button navdrawer_loginheader_arrow;
     private TextView        nadrawer_loginheader_email;
     private CircleImageView nadrawer_loginheader_picture;
+    private ArrayList<MenuStore> menus;
+    private AdapterFood adapterFood;
 
     @Override
     protected void onDestroy() {
@@ -92,11 +100,6 @@ public class FoodActivity extends BaseActivity implements NavigationView.OnNavig
         nadrawer_loginheader_email      = (TextView) headerLayout.findViewById(R.id.nadrawer_loginheader_email);
         nadrawer_loginheader_picture    = (CircleImageView) headerLayout.findViewById(R.id.nadrawer_loginheader_picture);
 
-        getUser();
-
-        //Create database reference
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-
         recycler_List_Foods = (RecyclerView) findViewById(R.id.recycler_List_Foods);
         recycler_List_Foods.setHasFixedSize(true);
 
@@ -105,42 +108,98 @@ public class FoodActivity extends BaseActivity implements NavigationView.OnNavig
         mManager.setStackFromEnd(true);
         recycler_List_Foods.setLayoutManager(mManager);
 
-        navdrawer_loginheader_arrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                mAuth.signOut();
-                Intent intent = new Intent(FoodActivity.this, SignInActivity.class);
-                startActivity(intent);
-            }
-        });
+        Boolean isConnected = checkNetwork();
+        if(isConnected){
+            getUser();
 
-        final Query menusQuery = mDatabase.child("menus").limitToFirst(100);
+            //Create database reference
+            mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        mAdapter = new FirebaseRecyclerAdapter<MenuStore, ListMenusViewHolder>(
-                MenuStore.class,
-                R.layout.item_list_food,
-                ListMenusViewHolder.class,
-                menusQuery) {
-            @Override
-            protected void populateViewHolder(final ListMenusViewHolder viewHolder, final MenuStore model, int position) {
+            navdrawer_loginheader_arrow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                    mAuth.signOut();
+                    Intent intent = new Intent(FoodActivity.this, SignInActivity.class);
+                    startActivity(intent);
+                }
+            });
 
-                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(FoodActivity.this, StoreByFoodActivity.class);
-                        intent.putExtra(StoreByFoodActivity.EXTRA_BRAND, model.getBrand());
-                        startActivity(intent);
-                    }
-                });
+            final Query menusQuery = mDatabase.child("menus").limitToFirst(100);
 
-                Picasso.with(FoodActivity.this).load(model.getImage()).into(viewHolder.img_Item_Food);
+            mAdapter = new FirebaseRecyclerAdapter<MenuStore, ListMenusViewHolder>(
+                    MenuStore.class,
+                    R.layout.item_list_food,
+                    ListMenusViewHolder.class,
+                    menusQuery) {
+                @Override
+                protected void populateViewHolder(final ListMenusViewHolder viewHolder, final MenuStore model, int position) {
 
-                viewHolder.bindToMenu(model);
-            }
-        };
+                    viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent intent = new Intent(FoodActivity.this, StoreByFoodActivity.class);
+                            intent.putExtra(StoreByFoodActivity.EXTRA_BRAND, model.getBrand());
+                            startActivity(intent);
+                        }
+                    });
 
-        recycler_List_Foods.setAdapter(mAdapter);
+                    Picasso.with(FoodActivity.this).load(model.getImage()).into(viewHolder.img_Item_Food);
+
+                    viewHolder.bindToMenu(model);
+                }
+            };
+
+            recycler_List_Foods.setAdapter(mAdapter);
+        }
+        else {
+            Toast.makeText(this, "Not Connected", Toast.LENGTH_SHORT).show();
+            LoadSQLite loadSQLite = new LoadSQLite(this);
+            menus = loadSQLite.xuLySaoChepMenu();
+            adapterFood = new AdapterFood(menus);
+            recycler_List_Foods.setAdapter(adapterFood);
+        }
+
+    }
+
+    public class AdapterFood extends RecyclerView.Adapter<ListMenusViewHolder> {
+
+        ArrayList<MenuStore> mMenus;
+        public AdapterFood(ArrayList<MenuStore> mMenus) {
+            this.mMenus = mMenus;
+        }
+
+        @Override
+        public ListMenusViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            View itemView = inflater.inflate(R.layout.item_list_food, parent, false);
+            return new ListMenusViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(final ListMenusViewHolder viewHolder, int position) {
+            final MenuStore model = mMenus.get(position);
+
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(FoodActivity.this, StoreByFoodActivity.class);
+                    intent.putExtra(StoreByFoodActivity.EXTRA_BRAND, model.getBrand());
+                    startActivity(intent);
+                }
+            });
+
+            //Picasso.with(FoodActivity.this).load(model.getImage()).into(viewHolder.img_Item_Food);
+            viewHolder.img_Item_Food.setImageDrawable(getResources().getDrawable(R.drawable.nopicture));
+
+            viewHolder.bindToMenu(model);
+        }
+
+        @Override
+        public int getItemCount() {
+            return mMenus.size();
+        }
+
     }
 
     public void getUser() {
