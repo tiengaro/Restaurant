@@ -82,7 +82,7 @@ public class MainActivity extends BaseActivity implements NavigationView.OnNavig
 
         loadSelection(R.id.nav_home);
 
-        navigationView.setCheckedItem(R.id.nav_home);
+            navigationView.setCheckedItem(R.id.nav_home);
 
         navigationView.setNavigationItemSelectedListener(this);
         View headerLayout = navigationView.getHeaderView(0);
